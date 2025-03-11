@@ -81,6 +81,7 @@ This could look like:
 "[Bears] [at the door] [are], [trash] [outside] [did you leave]?"
 
 
-  </assistant: output>
+</assistant: output>
 
 </example>
+
