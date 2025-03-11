@@ -43,7 +43,7 @@ Establish a clear and comprehensive data governance policy to define roles and r
 Use encryption, access control, and monitoring techniques to ensure data security.
 
 
-
+## IN FRENCH 
 
 ## Exigences Fonctionnelles Détaillées pour l'Infrastructure IA Locale
 
