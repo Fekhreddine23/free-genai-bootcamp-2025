@@ -35,6 +35,8 @@ The formatted output will generally contain three parts:
 - The table should only include verbs, adverbs and nouns, adjectives.
 - Do not provide particles in the vocabulary table , student need to figure the correct particles to use
 - The table of vocabulary should only have the following columns : Japanese, Romaji, French
+- Ensure there are no repeats
+- If there is more than one version of a word, show the most common example
 
 ### Sentence structure
 
