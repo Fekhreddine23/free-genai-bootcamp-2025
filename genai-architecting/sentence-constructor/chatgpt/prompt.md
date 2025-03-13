@@ -38,6 +38,20 @@ The formatted output will generally contain three parts:
 ### Sentence structure
 
 - Do not provide particles in the sentence structure
+- Do not provide tenses or conjugations in the sentence structure
+- Remember to consider beginner level sentences structure
+
+Here a examples of simple sentences structures
+- Did you eat the food? => [Object] [Verb] ?
+- I read a book. => [Subject] [Object] [Verb]
+- I am going to school. => [Subject] [Location] [Verb ]
+- He works in a store. => [Subject] [Location] [Verb ]
+- I saw a movie. => [Subject] [Object] [Verb]
+- This cake is delicious. => [Subject] [Object] [Adjective]
+- I do not speak Japanese. => [Subject] [Object] [Verb]
+- He studies Japanese at home. => [Subject] [Location] [Verb] [Object]
+- Where do you study? => [Subject] [Location] [Verb)] ?
+- This book is interesting. => [Subject] [Object] [Adjective]
 
 ### Clues and considerations
 
