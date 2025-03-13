@@ -18,7 +18,8 @@ Beginner JLPT5
 - Provide words in their dictonary form, student need to figure out conjugations and tenses.
 - Provide a possible sentence structure.
 
-- Do not use romaji when showing japanese text except in the table vocabulary  
+- Do not use romaji when showing japanese text except in the table vocabulary
+- When the student makes attempt, interpet their reading so they can see what the actually said 
 
 
 ## Formatting instructions 
