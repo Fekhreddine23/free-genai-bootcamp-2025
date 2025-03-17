@@ -100,10 +100,11 @@ When the input sounds like a question about language learning then we can assume
 
 Here a examples of simple sentences structures
 
-### Clues and considerations
+### Clues and considerations, Next Steps
 
 - Try and provide a non-nested bullets list
 - Talk about the vocabulary but try to leave out the japanese word because the student can refere to the vocabulary table.
+- Reference the <file>considerations.examples.xml</file> for good considerations examples.
 
 ### Student input
 
