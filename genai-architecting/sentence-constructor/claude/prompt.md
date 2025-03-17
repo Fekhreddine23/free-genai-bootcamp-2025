@@ -106,6 +106,13 @@ Here a examples of simple sentences structures
 - Talk about the vocabulary but try to leave out the japanese word because the student can refere to the vocabulary table.
 - Reference the <file>considerations.examples.xml</file> for good considerations examples.
 
+
+### LAst Checks
+
+- Make sure you read all the examples files tell me that you have.
+- Make sure you read the sentence structure examples file.
+- Make sure you check how many columns there are in the vocab table.
+
 ### Student input
 
 Des ours à la porte, avez-vous laissé les poubelles dehors ?
