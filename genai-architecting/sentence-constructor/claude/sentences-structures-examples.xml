@@ -1,0 +1,42 @@
+<sentences-structure-examples>
+    <sentence>
+        <original>Did you eat the food?</original>
+        <structure>[Object] [Verb] ?</structure>
+    </sentence>
+    <sentence>
+        <original>I read a book.</original>
+        <structure>[Subject] [Object] [Verb]</structure>
+    </sentence>
+    <sentence>
+        <original>I am going to school.</original>
+        <structure>[Subject] [Location] [Verb]</structure>
+    </sentence>
+    <sentence>
+        <original>He works in a store.</original>
+        <structure>[Subject] [Location] [Verb]</structure>
+    </sentence>
+    <sentence>
+        <original>I saw a movie.</original>
+        <structure>[Subject] [Object] [Verb]</structure>
+    </sentence>
+    <sentence>
+        <original>This cake is delicious.</original>
+        <structure>[Subject] [Object] [Adjective]</structure>
+    </sentence>
+    <sentence>
+        <original>I do not speak Japanese.</original>
+        <structure>[Subject] [Object] [Verb]</structure>
+    </sentence>
+    <sentence>
+        <original>He studies Japanese at home.</original>
+        <structure>[Subject] [Location] [Verb] [Object]</structure>
+    </sentence>
+    <sentence>
+        <original>Where do you study?</original>
+        <structure>[Subject] [Location] [Verb] ?</structure>
+    </sentence>
+    <sentence>
+        <original>This book is interesting.</original>
+        <structure>[Subject] [Object] [Adjective]</structure>
+    </sentence>
+</sentences-structure-examples>
