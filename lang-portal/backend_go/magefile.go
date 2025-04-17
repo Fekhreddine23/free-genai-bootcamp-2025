@@ -60,22 +60,62 @@ func InitDB() error {
 	}
 	defer db.Close()
 
-	migrationManager := db.NewMigrationManager(db.DB)
-	if err := migrationManager.Initialize(); err != nil {
-		log.Fatal("Failed to initialize migrations table:", err)
-	}
+	// Create tables
+	schema := `
+	CREATE TABLE IF NOT EXISTS words (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		japanese TEXT NOT NULL,
+		romaji TEXT NOT NULL,
+		french TEXT NOT NULL
+	);
 
-	migrations, err := migrationManager.LoadMigrations("./migrations")
-	if err != nil {
-		log.Fatal("Failed to load migrations:", err)
-	}
+	CREATE TABLE IF NOT EXISTS groups (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		name TEXT NOT NULL
+	);
 
-	if err := migrationManager.ApplyMigrations(migrations); err != nil {
-		log.Fatal("Failed to apply migrations:", err)
+	CREATE TABLE IF NOT EXISTS words_groups (
+		word_id INTEGER NOT NULL,
+		group_id INTEGER NOT NULL,
+		PRIMARY KEY (word_id, group_id),
+		FOREIGN KEY (word_id) REFERENCES words(id),
+		FOREIGN KEY (group_id) REFERENCES groups(id)
+	);
+
+	CREATE TABLE IF NOT EXISTS study_activities (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		name TEXT NOT NULL,
+		thumbnail_url TEXT,
+		description TEXT
+	);
+
+	CREATE TABLE IF NOT EXISTS study_sessions (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		group_id INTEGER NOT NULL,
+		study_activity_id INTEGER NOT NULL,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		FOREIGN KEY (group_id) REFERENCES groups(id),
+		FOREIGN KEY (study_activity_id) REFERENCES study_activities(id)
+	);
+
+	CREATE TABLE IF NOT EXISTS word_review_items (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		word_id INTEGER NOT NULL,
+		study_session_id INTEGER NOT NULL,
+		correct BOOLEAN NOT NULL,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		FOREIGN KEY (word_id) REFERENCES words(id),
+		FOREIGN KEY (study_session_id) REFERENCES study_sessions(id)
+	);
+	`
+
+	if _, err := db.Exec(schema); err != nil {
+		return fmt.Errorf("failed to create tables: %v", err)
 	}
 
 	fmt.Println("Database initialization completed successfully")
 	return nil
+
 }
 
 // Seed seeds the database with initial data from JSON files

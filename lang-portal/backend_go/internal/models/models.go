@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
 )
 
@@ -134,4 +135,23 @@ func NewDB(dataSourceName string) (*DB, error) {
 		return nil, err
 	}
 	return &DB{db}, nil
+}
+
+// MigrationManager handles database migrations
+type MigrationManager struct {
+	DB *sql.DB
+}
+
+// NewMigrationManager creates a new instance of MigrationManager
+func (db *DB) NewMigrationManager() *MigrationManager {
+	return &MigrationManager{DB: db.DB}
+}
+
+// ApplySchema applies the database schema
+func (m *MigrationManager) ApplySchema(schema string) error {
+	_, err := m.DB.Exec(schema)
+	if err != nil {
+		return fmt.Errorf("failed to apply schema: %v", err)
+	}
+	return nil
 }
