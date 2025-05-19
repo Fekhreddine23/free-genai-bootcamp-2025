@@ -1,0 +1,17 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Run Streamlit Server",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/listening-comp/frontend/main.py",
+            "console": "integratedTerminal",
+            "env": {
+                "GOOGLE_APPLICATION_CREDENTIALS": "/mnt/c/Users/far23/googleCloudSecureAPi/credentials.json"
+            },
+            "preLaunchTask": "activateConda"
+        }
+    ]
+}
+

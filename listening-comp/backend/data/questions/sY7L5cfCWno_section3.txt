@@ -1,35 +1,85 @@
-<question>
-Situation:
-寝ます他の人に何と言いますか
+Here are the questions from section 問題3:
 
-Question:
-何と言いますか
+<question>
+Situation: 
+矢印の人は何と言いますか
+
+Question: 何と言いますか
 </question>
-<question>
-Situation:
-学校へ出かけます家族に何と言いますか
 
-Question:
-何と言いますか
+<question>
+Situation: 
+他の人に何と言いますか
+
+Question: 何と言いますか
 </question>
-<question>
-Situation:
-電車に乗ります東京まで何分で行くか聞きたいです何と言いますか
 
-Question:
-何と言いますか
+<question>
+Situation: 
+家族に何と言いますか
+
+Question: 何と言いますか
 </question>
-<question>
-Situation:
-タクシーの中ですどこへ行きたいか言います何と言いますか
 
-Question:
-何と言いますか
+<question>
+Situation: 
+電車に乗ります東京まで何分で行くか聞きたいです
+
+Question: 何と言いますか
 </question>
-<question>
-Situation:
-喫茶店にいますコーヒーを飲みたいです何と言いますか
 
-Question:
-何と言いますか
+<question>
+Situation: 
+タクシーの中ですどこへ行きたいか言います
+
+Question: 何と言いますか
+</question>
+
+<question>
+Situation: 
+喫茶店にいますコーヒーを飲みたいです
+
+Question: 何と言いますか
+</question>
+
+<question>
+Situation: 
+あの方はどなたですか
+
+Question: 何と言いますか
+</question>
+
+<question>
+Situation: 
+お父さんはおいくつですか
+
+Question: 何と言いますか
+</question>
+
+<question>
+Situation: 
+日本料理は何が好きですか
+
+Question: 何と言いますか
+</question>
+
+<question>
+Situation: 
+窓を開けましょうか
+
+Question: 何と言いますか
+</question>
+
+<question>
+Situation: 
+すみませんオレンジジュースをお願いします
+
+Question: 何と言いますか
+</question>
+
+<question>
+Situation: 
+会社まで何で行きますか
+
+Question: 何と言いますか
 </question>

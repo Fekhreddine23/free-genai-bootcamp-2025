@@ -2,34 +2,17 @@ import chromadb
 from chromadb.utils import embedding_functions
 import json
 import os
-import boto3
+from sentence_transformers import SentenceTransformer
+
 from typing import Dict, List, Optional
 
-class BedrockEmbeddingFunction(embedding_functions.EmbeddingFunction):
-    def __init__(self, model_id="amazon.titan-embed-text-v1"):
-        """Initialize Bedrock embedding function"""
-        self.bedrock_client = boto3.client('bedrock-runtime', region_name="us-east-1")
-        self.model_id = model_id
+
+class LocalEmbeddingFunction(embedding_functions.EmbeddingFunction):
+    def __init__(self, model_name: str = "all-MiniLM-L6-v2"):
+        self.model = SentenceTransformer(model_name)
 
     def __call__(self, texts: List[str]) -> List[List[float]]:
-        """Generate embeddings for a list of texts using Bedrock"""
-        embeddings = []
-        for text in texts:
-            try:
-                response = self.bedrock_client.invoke_model(
-                    modelId=self.model_id,
-                    body=json.dumps({
-                        "inputText": text
-                    })
-                )
-                response_body = json.loads(response['body'].read())
-                embedding = response_body['embedding']
-                embeddings.append(embedding)
-            except Exception as e:
-                print(f"Error generating embedding: {str(e)}")
-                # Return a zero vector as fallback
-                embeddings.append([0.0] * 1536)  # Titan model uses 1536 dimensions
-        return embeddings
+        return self.model.encode(texts, convert_to_numpy=True).tolist()
 
 class QuestionVectorStore:
     def __init__(self, persist_directory: str = "backend/data/vectorstore"):
@@ -39,8 +22,8 @@ class QuestionVectorStore:
         # Initialize ChromaDB client
         self.client = chromadb.PersistentClient(path=persist_directory)
         
-        # Use Bedrock's Titan embedding model
-        self.embedding_fn = BedrockEmbeddingFunction()
+   
+        self.embedding_fn = LocalEmbeddingFunction()
         
         # Create or get collections for each section type
         self.collections = {
