@@ -332,13 +332,15 @@ def main():
                     with st.spinner("Génération audio..."):
                         try:
                             normalized_question = normalize_question(st.session_state.current_question)
-                            text_to_speak = "\n".join([
-                                normalized_question["introduction"],
-                                *[f"{line['speaker']}: {line['text']}" for line in normalized_question["conversation"]],
-                                normalized_question["question"]
-                            ])
-                            
-                            audio_path = st.session_state.audio_generator.generate_audio(text_to_speak)
+                            parts = []
+                            if normalized_question["introduction"]:
+                                parts.append(("Announcer", normalized_question["introduction"]))
+                            for line in normalized_question["conversation"]:
+                                parts.append((line["speaker"], line["text"]))
+                            if normalized_question["question"]:
+                                parts.append(("Announcer", normalized_question["question"]))
+
+                            audio_path = st.session_state.audio_generator.generate_audio({"parts": parts})
                             if audio_path and os.path.exists(audio_path):
                                 st.session_state.current_audio = audio_path
                                 save_question(
