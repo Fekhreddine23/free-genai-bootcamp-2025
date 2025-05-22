@@ -3,101 +3,96 @@ import tempfile
 import subprocess
 from datetime import datetime
 from typing import Dict, List, Tuple
-import shlex
+from gtts import gTTS
 
 class AudioGenerator:
     def __init__(self):
-        self.voices = {
-            'male': ['Takumi'],
-            'female': ['Kazuha'],
-            'announcer': 'Takumi'
-        }
-
         self.audio_dir = os.path.join(
             os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
             "frontend/static/audio"
         )
         os.makedirs(self.audio_dir, exist_ok=True)
 
-    def validate_conversation_parts(self, parts: List[Tuple[str, str, str]]) -> bool:
-        return bool(parts)
+    def generate_audio_part_wav(self, text: str) -> str:
+        temp_wav = tempfile.NamedTemporaryFile(suffix='.wav', delete=False).name
+        tts = gTTS(text, lang='ja')
+        temp_mp3 = tempfile.NamedTemporaryFile(suffix='.mp3', delete=False).name
+        tts.save(temp_mp3)
+        subprocess.run([
+            'ffmpeg', '-y', '-i', temp_mp3, '-ar', '48000', '-ac', '2', temp_wav
+        ], check=True)
+        os.remove(temp_mp3)
+        return temp_wav
 
-    def get_voice_for_gender(self, gender: str) -> str:
-        return self.voices.get(gender, ['Takumi'])[0]
-
-    def generate_audio_part(self, text: str, voice_name: str) -> str:
-        try:
-            temp_wav = tempfile.NamedTemporaryFile(suffix='.wav', delete=False).name
-            # Remplacez 'mb-jp1' par 'mb'
-            command = f'espeak -v mb -s 140 {shlex.quote(text)} --stdout > {temp_wav}'
-            subprocess.run(command, shell=True, check=True)
-
-            mp3_file = temp_wav.replace('.wav', '.mp3')
-            subprocess.run([
-                'ffmpeg', '-y', '-i', temp_wav, '-codec:a', 'libmp3lame', '-qscale:a', '2', mp3_file
-            ], check=True)
-
-            os.unlink(temp_wav)
-            return mp3_file
-
-        except Exception as e:
-            print(f"Erreur génération audio: {str(e)}")
-            return None
-
-    def generate_silence(self, duration_ms: int) -> str:
-        output_file = os.path.join(self.audio_dir, f'silence_{duration_ms}ms.mp3')
+    def generate_silence_wav(self, duration_ms: int) -> str:
+        output_file = os.path.join(self.audio_dir, f'silence_{duration_ms}ms.wav')
         if not os.path.exists(output_file):
             subprocess.run([
                 'ffmpeg', '-f', 'lavfi', '-i',
-                f'anullsrc=r=24000:cl=mono:d={duration_ms/1000}',
-                '-c:a', 'libmp3lame', '-b:a', '48k',
+                f'anullsrc=r=48000:cl=stereo:d={duration_ms/1000}',
                 output_file
-            ])
+            ], check=True)
         return output_file
 
-    def combine_audio_files(self, audio_files: List[str], output_file: str):
-        try:
-            txt_path = os.path.join(self.audio_dir, "inputs.txt")
-            with open(txt_path, 'w') as f:
-                for file in audio_files:
-                    f.write(f"file '{file}'\n")
-            subprocess.run([
-                'ffmpeg', '-y', '-f', 'concat', '-safe', '0',
-                '-i', txt_path, '-c', 'copy', output_file
-            ], check=True)
-            os.remove(txt_path)
-            return True
-        except Exception as e:
-            print(f"Erreur de combinaison audio : {str(e)}")
-            return False
+    def combine_audio_files_wav(self, audio_files: List[str], output_file: str):
+        txt_path = os.path.join(self.audio_dir, "inputs.txt")
+        with open(txt_path, 'w') as f:
+            for file in audio_files:
+                f.write(f"file '{file}'\n")
+        subprocess.run([
+            'ffmpeg', '-y', '-f', 'concat', '-safe', '0',
+            '-i', txt_path, '-ar', '48000', '-ac', '2', output_file
+        ], check=True)
+        os.remove(txt_path)
+
+    def wav_to_mp3(self, input_wav: str, output_mp3: str):
+        subprocess.run([
+            'ffmpeg', '-y', '-i', input_wav, '-ar', '48000', '-ac', '2', '-b:a', '192k', output_mp3
+        ], check=True)
 
     def generate_audio(self, question: Dict) -> str:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        output_file = os.path.join(self.audio_dir, f"question_{timestamp}.mp3")
+        combined_wav = os.path.join(self.audio_dir, f"question_{timestamp}.wav")
+        final_mp3 = os.path.join(self.audio_dir, f"question_{timestamp}.mp3")
 
         try:
-            parts = [
-                ('Announcer', '次の会話を聞いて、質問に答えてください。', 'male'),
-                ('Student', 'すみません、この電車は新宿駅に止まりますか。', 'female'),
-                ('Teacher', 'はい、止まります。', 'male')
-            ]
+            # On attend que question["parts"] soit une liste de tuples (speaker, texte)
+            parts = question.get("parts", [])
+            if not parts:
+                raise Exception("Aucune partie de texte à synthétiser reçue.")
 
             audio_parts = []
-            for speaker, text, gender in parts:
-                voice = self.get_voice_for_gender(gender)
-                print(f"Génération audio pour {speaker} ({gender})")
+            for speaker, text in parts:
+                print(f"Génération audio pour {speaker}")
+                wav_file = self.generate_audio_part_wav(text)
+                audio_parts.append(wav_file)
+                silence_wav = self.generate_silence_wav(500)
+                audio_parts.append(silence_wav)
 
-                audio_file = self.generate_audio_part(text, voice)
-                if audio_file:
-                    audio_parts.append(audio_file)
-                    audio_parts.append(self.generate_silence(500))
+            self.combine_audio_files_wav(audio_parts, combined_wav)
+            self.wav_to_mp3(combined_wav, final_mp3)
 
-            if audio_parts and self.combine_audio_files(audio_parts, output_file):
-                return output_file
+            # Nettoyage des fichiers temporaires
+            for f in audio_parts:
+                if os.path.exists(f):
+                    os.remove(f)
+            if os.path.exists(combined_wav):
+                os.remove(combined_wav)
 
-            raise Exception("Échec de génération audio")
+            return final_mp3
 
         except Exception as e:
-            if os.path.exists(output_file):
-                os.unlink(output_file)
+            if os.path.exists(final_mp3):
+                os.unlink(final_mp3)
             raise Exception(f"Erreur: {str(e)}")
+
+if __name__ == "__main__":
+    audio_generator = AudioGenerator()
+    question = {
+        "parts": [
+            ("Announcer", "Texte dynamique 1"),
+            ("Student", "Texte dynamique 2"),
+            ("Teacher", "Texte dynamique 3")
+        ]
+    }
+    audio_generator.generate_audio(question)
