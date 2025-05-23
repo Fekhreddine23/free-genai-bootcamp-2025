@@ -1,0 +1,572 @@
+[
+  {
+    "kanji": "払う",
+    "romaji": "harau",
+    "french": "payer",
+    "parts": [
+      { "kanji": "払", "romaji": ["ha", "ra"] },
+      { "kanji": "う", "romaji": ["u"] }
+    ]
+  },
+  {
+    "kanji": "行く",
+    "romaji": "iku",
+    "french": "aller",
+    "parts": [
+      { "kanji": "行", "romaji": ["i"] },
+      { "kanji": "く", "romaji": ["ku"] }
+    ]
+  },
+  {
+    "kanji": "運動する",
+    "romaji": "undousuru",
+    "french": "faire de l'exercice",
+    "parts": [
+      { "kanji": "運", "romaji": ["un"] },
+      { "kanji": "動", "romaji": ["do", "u"] },
+      { "kanji": "す", "romaji": ["su"] },
+      { "kanji": "る", "romaji": ["ru"] }
+    ]
+  },
+  {
+    "kanji": "起きる",
+    "romaji": "okiru",
+    "french": "se réveiller",
+    "parts": [
+      { "kanji": "起", "romaji": ["o"] },
+      { "kanji": "き", "romaji": ["ki"] },
+      { "kanji": "る", "romaji": ["ru"] }
+    ]
+  },
+  {
+    "kanji": "買い物する",
+    "romaji": "kaimonosuru",
+    "french": "faire des courses",
+    "parts": [
+      { "kanji": "買", "romaji": ["ka"] },
+      { "kanji": "い", "romaji": ["i"] },
+      { "kanji": "物", "romaji": ["mo", "no"] },
+      { "kanji": "す", "romaji": ["su"] },
+      { "kanji": "る", "romaji": ["ru"] }
+    ]
+  },
+  {
+    "kanji": "帰る",
+    "romaji": "kaeru",
+    "french": "rentrer",
+    "parts": [
+      { "kanji": "帰", "romaji": ["ka", "e"] },
+      { "kanji": "る", "romaji": ["ru"] }
+    ]
+  },
+  {
+    "kanji": "書く",
+    "romaji": "kaku",
+    "french": "écrire",
+    "parts": [
+      { "kanji": "書", "romaji": ["ka"] },
+      { "kanji": "く", "romaji": ["ku"] }
+    ]
+  },
+  {
+    "kanji": "観光する",
+    "romaji": "kankousuru",
+    "french": "faire du tourisme",
+    "parts": [
+      { "kanji": "観", "romaji": ["kan"] },
+      { "kanji": "光", "romaji": ["kou"] },
+      { "kanji": "す", "romaji": ["su"] },
+      { "kanji": "る", "romaji": ["ru"] }
+    ]
+  },
+  {
+    "kanji": "聞く",
+    "romaji": "kiku",
+    "french": "écouter",
+    "parts": [
+      { "kanji": "聞", "romaji": ["ki"] },
+      { "kanji": "く", "romaji": ["ku"] }
+    ]
+  },
+  {
+    "kanji": "来る",
+    "romaji": "kuru",
+    "french": "venir",
+    "parts": [
+      { "kanji": "来", "romaji": ["ku"] },
+      { "kanji": "る", "romaji": ["ru"] }
+    ]
+  },
+  {
+    "kanji": "する",
+    "romaji": "suru",
+    "french": "faire",
+    "parts": [
+      { "kanji": "す", "romaji": ["su"] },
+      { "kanji": "る", "romaji": ["ru"] }
+    ]
+  },
+  {
+    "kanji": "食べる",
+    "romaji": "taberu",
+    "french": "manger",
+    "parts": [
+      { "kanji": "食", "romaji": ["ta"] },
+      { "kanji": "べ", "romaji": ["be"] },
+      { "kanji": "る", "romaji": ["ru"] }
+    ]
+  },
+  {
+    "kanji": "寝る",
+    "romaji": "neru",
+    "french": "dormir",
+    "parts": [
+      { "kanji": "寝", "romaji": ["ne"] },
+      { "kanji": "る", "romaji": ["ru"] }
+    ]
+  },
+  {
+    "kanji": "飲む",
+    "romaji": "nomu",
+    "french": "boire",
+    "parts": [
+      { "kanji": "飲", "romaji": ["no"] },
+      { "kanji": "む", "romaji": ["mu"] }
+    ]
+  },
+  {
+    "kanji": "乗る",
+    "romaji": "noru",
+    "french": "monter (dans un véhicule)",
+    "parts": [
+      { "kanji": "乗", "romaji": ["no"] },
+      { "kanji": "る", "romaji": ["ru"] }
+    ]
+  },
+  {
+    "kanji": "話す",
+    "romaji": "hanasu",
+    "french": "parler",
+    "parts": [
+      { "kanji": "話", "romaji": ["ha", "na"] },
+      { "kanji": "す", "romaji": ["su"] }
+    ]
+  },
+  {
+    "kanji": "勉強する",
+    "romaji": "benkyousuru",
+    "french": "étudier",
+    "parts": [
+      { "kanji": "勉", "romaji": ["be", "n"] },
+      { "kanji": "強", "romaji": ["kyo", "u"] },
+      { "kanji": "す", "romaji": ["su"] },
+      { "kanji": "る", "romaji": ["ru"] }
+    ]
+  },
+  {
+    "kanji": "見る",
+    "romaji": "miru",
+    "french": "voir",
+    "parts": [
+      { "kanji": "見", "romaji": ["mi"] },
+      { "kanji": "る", "romaji": ["ru"] }
+    ]
+  },
+  {
+    "kanji": "読む",
+    "romaji": "yomu",
+    "french": "lire",
+    "parts": [
+      { "kanji": "読", "romaji": ["yo"] },
+      { "kanji": "む", "romaji": ["mu"] }
+    ]
+  },
+  {
+    "kanji": "掛ける",
+    "romaji": "kakeru",
+    "french": "accrocher; appeler (au téléphone)",
+    "parts": [
+      { "kanji": "掛", "romaji": ["ka"] },
+      { "kanji": "け", "romaji": ["ke"] },
+      { "kanji": "る", "romaji": ["ru"] }
+    ]
+  },
+  {
+    "kanji": "借りる",
+    "romaji": "kariru",
+    "french": "emprunter",
+    "parts": [
+      { "kanji": "借", "romaji": ["ka", "ri"] },
+      { "kanji": "る", "romaji": ["ru"] }
+    ]
+  },
+  {
+    "kanji": "貸す",
+    "romaji": "kasu",
+    "french": "prêter",
+    "parts": [
+      { "kanji": "貸", "romaji": ["ka"] },
+      { "kanji": "す", "romaji": ["su"] }
+    ]
+  },
+  {
+    "kanji": "習う",
+    "romaji": "narau",
+    "french": "apprendre",
+    "parts": [
+      { "kanji": "習", "romaji": ["na", "ra"] },
+      { "kanji": "う", "romaji": ["u"] }
+    ]
+  },
+  {
+    "kanji": "教える",
+    "romaji": "oshieru",
+    "french": "enseigner",
+    "parts": [
+      { "kanji": "教", "romaji": ["o", "shi"] },
+      { "kanji": "え", "romaji": ["e"] },
+      { "kanji": "る", "romaji": ["ru"] }
+    ]
+  },
+  {
+    "kanji": "もらう",
+    "romaji": "morau",
+    "french": "recevoir",
+    "parts": [
+      { "kanji": "も", "romaji": ["mo"] },
+      { "kanji": "ら", "romaji": ["ra"] },
+      { "kanji": "う", "romaji": ["u"] }
+    ]
+  },
+  {
+    "kanji": "あげる",
+    "romaji": "ageru",
+    "french": "donner",
+    "parts": [
+      { "kanji": "あ", "romaji": ["a"] },
+      { "kanji": "げ", "romaji": ["ge"] },
+      { "kanji": "る", "romaji": ["ru"] }
+    ]
+  },
+  {
+    "kanji": "会う",
+    "romaji": "au",
+    "french": "rencontrer",
+    "parts": [
+      { "kanji": "会", "romaji": ["a"] },
+      { "kanji": "う", "romaji": ["u"] }
+    ]
+  },
+  {
+    "kanji": "下車する",
+    "romaji": "geshasuru",
+    "french": "descendre (d'un véhicule)",
+    "parts": [
+      { "kanji": "下", "romaji": ["ge"] },
+      { "kanji": "車", "romaji": ["sha"] },
+      { "kanji": "す", "romaji": ["su"] },
+      { "kanji": "る", "romaji": ["ru"] }
+    ]
+  },
+  {
+    "kanji": "始める",
+    "romaji": "hajimeru",
+    "french": "commencer",
+    "parts": [
+      { "kanji": "始", "romaji": ["ha", "ji"] },
+      { "kanji": "め", "romaji": ["me"] },
+      { "kanji": "る", "romaji": ["ru"] }
+    ]
+  },
+  {
+    "kanji": "見せる",
+    "romaji": "miseru",
+    "french": "montrer",
+    "parts": [
+      { "kanji": "見", "romaji": ["mi"] },
+      { "kanji": "せ", "romaji": ["se"] },
+      { "kanji": "る", "romaji": ["ru"] }
+    ]
+  },
+  {
+    "kanji": "降りる",
+    "romaji": "oriru",
+    "french": "descendre",
+    "parts": [
+      { "kanji": "降", "romaji": ["o", "ri"] },
+      { "kanji": "る", "romaji": ["ru"] }
+    ]
+  },
+  {
+    "kanji": "止める",
+    "romaji": "tomeru",
+    "french": "arrêter",
+    "parts": [
+      { "kanji": "止", "romaji": ["to"] },
+      { "kanji": "め", "romaji": ["me"] },
+      { "kanji": "る", "romaji": ["ru"] }
+    ]
+  },
+  {
+    "kanji": "消す",
+    "romaji": "kesu",
+    "french": "éteindre; effacer",
+    "parts": [
+      { "kanji": "消", "romaji": ["ke"] },
+      { "kanji": "す", "romaji": ["su"] }
+    ]
+  },
+  {
+    "kanji": "つける",
+    "romaji": "tsukeru",
+    "french": "allumer",
+    "parts": [
+      { "kanji": "つ", "romaji": ["tsu"] },
+      { "kanji": "け", "romaji": ["ke"] },
+      { "kanji": "る", "romaji": ["ru"] }
+    ]
+  },
+  {
+    "kanji": "急ぐ",
+    "romaji": "isogu",
+    "french": "se dépêcher",
+    "parts": [
+      { "kanji": "急", "romaji": ["i", "so"] },
+      { "kanji": "ぐ", "romaji": ["gu"] }
+    ]
+  },
+  {
+    "kanji": "手伝う",
+    "romaji": "tetsudau",
+    "french": "aider",
+    "parts": [
+      { "kanji": "手", "romaji": ["te"] },
+      { "kanji": "伝", "romaji": ["tsu", "da"] },
+      { "kanji": "う", "romaji": ["u"] }
+    ]
+  },
+  {
+    "kanji": "取る",
+    "romaji": "toru",
+    "french": "prendre",
+    "parts": [
+      { "kanji": "取", "romaji": ["to"] },
+      { "kanji": "る", "romaji": ["ru"] }
+    ]
+  },
+  {
+    "kanji": "持つ",
+    "romaji": "motsu",
+    "french": "tenir",
+    "parts": [
+      { "kanji": "持", "romaji": ["mo"] },
+      { "kanji": "つ", "romaji": ["tsu"] }
+    ]
+  },
+  {
+    "kanji": "待つ",
+    "romaji": "matsu",
+    "french": "attendre",
+    "parts": [
+      { "kanji": "待", "romaji": ["ma"] },
+      { "kanji": "つ", "romaji": ["tsu"] }
+    ]
+  },
+  {
+    "kanji": "歩く",
+    "romaji": "aruku",
+    "french": "marcher",
+    "parts": [
+      { "kanji": "歩", "romaji": ["a", "ru"] },
+      { "kanji": "く", "romaji": ["ku"] }
+    ]
+  },
+  {
+    "kanji": "閉める",
+    "romaji": "shimeru",
+    "french": "fermer",
+    "parts": [
+      { "kanji": "閉", "romaji": ["shi"] },
+      { "kanji": "め", "romaji": ["me"] },
+      { "kanji": "る", "romaji": ["ru"] }
+    ]
+  },
+  {
+    "kanji": "休む",
+    "romaji": "yasumu",
+    "french": "se reposer",
+    "parts": [
+      { "kanji": "休", "romaji": ["ya", "su"] },
+      { "kanji": "む", "romaji": ["mu"] }
+    ]
+  },
+  {
+    "kanji": "終わる",
+    "romaji": "owaru",
+    "french": "terminer",
+    "parts": [
+      { "kanji": "終", "romaji": ["o"] },
+      { "kanji": "わ", "romaji": ["wa"] },
+      { "kanji": "る", "romaji": ["ru"] }
+    ]
+  },
+  {
+    "kanji": "働く",
+    "romaji": "hataraku",
+    "french": "travailler",
+    "parts": [
+      { "kanji": "働", "romaji": ["ha", "ta", "ra"] },
+      { "kanji": "く", "romaji": ["ku"] }
+    ]
+  },
+  {
+    "kanji": "開ける",
+    "romaji": "akeru",
+    "french": "ouvrir",
+    "parts": [
+      { "kanji": "開", "romaji": ["a"] },
+      { "kanji": "け", "romaji": ["ke"] },
+      { "kanji": "る", "romaji": ["ru"] }
+    ]
+  },
+  {
+    "kanji": "呼ぶ",
+    "romaji": "yobu",
+    "french": "appeler",
+    "parts": [
+      { "kanji": "呼", "romaji": ["yo"] },
+      { "kanji": "ぶ", "romaji": ["bu"] }
+    ]
+  },
+  {
+    "kanji": "送る",
+    "romaji": "okuru",
+    "french": "envoyer",
+    "parts": [
+      { "kanji": "送", "romaji": ["o", "ku"] },
+      { "kanji": "る", "romaji": ["ru"] }
+    ]
+  },
+  {
+    "kanji": "切る",
+    "romaji": "kiru",
+    "french": "couper",
+    "parts": [
+      { "kanji": "切", "romaji": ["ki"] },
+      { "kanji": "る", "romaji": ["ru"] }
+    ]
+  },
+  {
+    "kanji": "撮る",
+    "romaji": "toru",
+    "french": "prendre (une photo)",
+    "parts": [
+      { "kanji": "撮", "romaji": ["to"] },
+      { "kanji": "る", "romaji": ["ru"] }
+    ]
+  },
+  {
+    "kanji": "言う",
+    "romaji": "iu",
+    "french": "dire",
+    "parts": [
+      { "kanji": "言", "romaji": ["i"] },
+      { "kanji": "う", "romaji": ["u"] }
+    ]
+  },
+  {
+    "kanji": "見れる",
+    "romaji": "mireru",
+    "french": "pouvoir voir",
+    "parts": [
+      { "kanji": "見", "romaji": ["mi"] },
+      { "kanji": "れ", "romaji": ["re"] },
+      { "kanji": "る", "romaji": ["ru"] }
+    ]
+  },
+  {
+    "kanji": "作る",
+    "romaji": "tsukuru",
+    "french": "fabriquer",
+    "parts": [
+      { "kanji": "作", "romaji": ["tsu", "ku"] },
+      { "kanji": "る", "romaji": ["ru"] }
+    ]
+  },
+  {
+    "kanji": "使う",
+    "romaji": "tsukau",
+    "french": "utiliser",
+    "parts": [
+      { "kanji": "使", "romaji": ["tsu", "ka"] },
+      { "kanji": "う", "romaji": ["u"] }
+    ]
+  },
+  {
+    "kanji": "有る",
+    "romaji": "aru",
+    "french": "exister (inanimé)",
+    "parts": [
+      { "kanji": "有", "romaji": ["a"] },
+      { "kanji": "る", "romaji": ["ru"] }
+    ]
+  },
+  {
+    "kanji": "居る",
+    "romaji": "iru",
+    "french": "exister (animé)",
+    "parts": [
+      { "kanji": "居", "romaji": ["i"] },
+      { "kanji": "る", "romaji": ["ru"] }
+    ]
+  },
+  {
+    "kanji": "困る",
+    "romaji": "komaru",
+    "french": "être en difficulté",
+    "parts": [
+      { "kanji": "困", "romaji": ["ko", "ma"] },
+      { "kanji": "る", "romaji": ["ru"] }
+    ]
+  },
+  {
+    "kanji": "泳ぐ",
+    "romaji": "oyogu",
+    "french": "nager",
+    "parts": [
+      { "kanji": "泳", "romaji": ["o", "yo"] },
+      { "kanji": "ぐ", "romaji": ["gu"] }
+    ]
+  },
+  {
+    "kanji": "散歩する",
+    "romaji": "sanposuru",
+    "french": "se promener",
+    "parts": [
+      { "kanji": "散", "romaji": ["san"] },
+      { "kanji": "歩", "romaji": ["po"] },
+      { "kanji": "す", "romaji": ["su"] },
+      { "kanji": "る", "romaji": ["ru"] }
+    ]
+  },
+  {
+    "kanji": "運転する",
+    "romaji": "untensuru",
+    "french": "conduire",
+    "parts": [
+      { "kanji": "運", "romaji": ["un"] },
+      { "kanji": "転", "romaji": ["ten"] },
+      { "kanji": "す", "romaji": ["su"] },
+      { "kanji": "る", "romaji": ["ru"] }
+    ]
+  },
+  {
+    "kanji": "合う",
+    "romaji": "au",
+    "french": "rencontrer; convenir",
+    "parts": [
+      { "kanji": "合", "romaji": ["a"] },
+      { "kanji": "う", "romaji": ["u"] }
+    ]
+  }
+]
