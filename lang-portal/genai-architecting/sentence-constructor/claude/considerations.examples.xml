@@ -1,0 +1,30 @@
+<examples>
+    <example>
+        <output>
+            A natural Japanese structure for this sentence could be:
+            [Subject] [Location] [Verb], [Object] [Location] [Verb]?
+            Clues and Considerations
+
+            Think about which particles to use for marking the subject (熊)
+            Consider which particle to use for location (門 and 外)
+            Remember that Japanese puts verbs at the end of clauses
+            For the question part, think about how to form a past tense question
+
+        </output>
+        <score>6</score>
+        <score-reason>
+            This example output scores 6 because the return information is too verbose.
+        </score-reason>
+    </example>
+    <example>
+        <output>
+
+            Consider how to connect the two parts of the sentence
+            Remember that in Japanese, the subject can often be omitted if it's clear from context
+        </output>
+        <score>10</score>
+        <score-reason>
+            This example output scores 10 because the return information is concise.
+        </score-reason>
+    </example>
+</examples>
