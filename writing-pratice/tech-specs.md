@@ -3,7 +3,7 @@
 
 ## Initialization Step
 
-When the app first initializes it needs to the following: Fetch from the GET localhost:5000/api/groups/:id/raw, this will return a collection of words in a json structure. It will have japanese words with their english translation. We need to store this collection of words in memory
+When the app first initializes it needs to the following: Fetch from the GET localhost:5000/api/groups/:id/raw, this will return a collection of words in a json structure. It will have japanese words with their french translation. We need to store this collection of words in memory
 
 ## Page States
 Page states describes the state the single page application should behaviour from a user's perspective.

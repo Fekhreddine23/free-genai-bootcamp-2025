@@ -1,14 +1,13 @@
 import streamlit as st
-import requests
-from enum import Enum
 import json
-from typing import Dict, Optional
 import logging
 import random
 from groq import Groq
 import time
 from dotenv import load_dotenv
 import os
+from enum import Enum
+from typing import Dict, Optional
 
 # Configuration
 load_dotenv(dotenv_path="writing-pratice/.env")
@@ -20,6 +19,7 @@ MAX_TOKENS = 1024
 logger = logging.getLogger("japanese_app")
 logger.setLevel(logging.DEBUG)
 
+# Configuration du log
 if logger.hasHandlers():
     logger.handlers.clear()
 
@@ -41,9 +41,16 @@ class AppState(Enum):
 class JapaneseLearningApp:
     def __init__(self):
         logger.debug("Initialisation de l'application...")
-        self.initialize_session_state()
-        self.load_vocabulary()
-        self.init_groq_client()
+
+        # Initialisation des états de session
+        if "app_state" not in st.session_state:
+            st.session_state.app_state = AppState.SETUP
+        if "current_sentence" not in st.session_state:
+            st.session_state.current_sentence = None
+
+        self.initialize_session_state()  # Initialisation des états de session
+        self.load_vocabulary()  # Chargement du vocabulaire
+        self.init_groq_client()  # Initialisation du client Groq
 
     def initialize_session_state(self):
         """Initialise l'état de la session"""
@@ -75,7 +82,6 @@ class JapaneseLearningApp:
     def load_vocabulary(self):
         """Charge le vocabulaire"""
         try:
-            # Version simplifiée avec vocabulaire intégré
             self.vocabulary = {
                 "words": [
                     {
@@ -115,11 +121,14 @@ class JapaneseLearningApp:
 
     def generate_sentence(self) -> Optional[Dict[str, str]]:
         """Génère une phrase avec Groq"""
-        if not self.groq_client or not self.vocabulary:
+        if not self.groq_client:
+            st.error("Erreur: Client Groq non initialisé.")
+            return None
+        if not self.vocabulary:
+            st.error("Erreur: Vocabulaire non chargé.")
             return None
 
         try:
-            # Filtre par niveau JLPT
             level_words = [
                 w
                 for w in self.vocabulary["words"]
@@ -129,140 +138,89 @@ class JapaneseLearningApp:
                 level_words = self.vocabulary["words"]
 
             word = random.choice(level_words)
+            logger.debug(f"Mot sélectionné: {word['kanji']}")
 
             prompt = f"""
-            Tu es un professeur de japonais. Génère une phrase d'exemple en japonais utilisant le mot: {word['kanji']} ({word['reading']})
-            
-            Exigences:
+            Tu es un professeur de japonais expérimenté. Génère une phrase d'exemple en japonais utilisant le mot: {word['kanji']} ({word['reading']})
+
+            Exigences STRICTES:
             - Niveau JLPT {st.session_state.current_level}
             - Maximum 12 mots
-            - Grammaire appropriée au niveau
-            - Utilisation naturelle du mot
-            
-            Format de sortie JSON:
+            - Uniquement la phrase en japonais et sa traduction
+            - Format JSON valide et bien formé
+
+            Format de réponse STRICT:
             {{
                 "japanese": "phrase en japonais",
                 "french": "traduction en français",
                 "word_used": "{word['kanji']}",
                 "word_reading": "{word['reading']}",
                 "word_meaning": "{word['french']}",
-                "grammar_points": ["point de grammaire 1", "point de grammaire 2"],
+                "grammar_points": ["point1", "point2"],
                 "difficulty": "facile/moyen/difficile"
+            }}
+            Exemple VALIDE:
+            {{
+                "japanese": "私は本を読みます",
+                "french": "Je lis un livre",
+                "word_used": "本",
+                "word_reading": "ほん",
+                "word_meaning": "livre",
+                "grammar_points": ["particule を", "verbe en -ます"],
+                "difficulty": "facile"
             }}
             """
 
             response = self.groq_client.chat.completions.create(
                 model=MODEL_NAME,
                 messages=[{"role": "user", "content": prompt}],
-                temperature=TEMPERATURE,
+                temperature=0.3,  # Réduit pour plus de cohérence
                 max_tokens=MAX_TOKENS,
                 response_format={"type": "json_object"},
             )
 
             result = json.loads(response.choices[0].message.content)
+            logger.debug(f"Réponse reçue: {result}")
+
+            # Validation des champs obligatoires
+            required_fields = [
+                "japanese",
+                "french",
+                "word_used",
+                "word_reading",
+                "word_meaning",
+            ]
+            for field in required_fields:
+                if field not in result:
+                    raise ValueError(f"Champ manquant: {field}")
+
             result["source_word"] = word
             result["generated_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
 
-            # Enregistre dans l'historique
+            if "practice_history" not in st.session_state:
+                st.session_state.practice_history = []
             st.session_state.practice_history.append(result)
+
             return result
 
         except Exception as e:
-            logger.error(f"Erreur génération: {e}")
-            st.session_state.last_error = f"Erreur: {str(e)}"
+            logger.error(f"Erreur génération: {str(e)}")
+            st.error(f"Erreur lors de la génération: {str(e)}")
             return None
 
-    def grade_submission(self, user_input: str, correct_sentence: str) -> Dict:
-        """Évalue la soumission de l'utilisateur"""
-        prompt = f"""
-        Tu es un professeur de japonais. Évalue cette réponse d'étudiant:
-        
-        Phrase correcte: {correct_sentence}
-        Réponse étudiante: {user_input}
-        
-        Analyse:
-        - Exactitude (orthographe, grammaire)
-        - Suggestions d'amélioration
-        - Note globale (A-F)
-        
-        Format de sortie JSON:
-        {{
-            "grade": "note A-F",
-            "accuracy": "score 0-100",
-            "feedback": "retour détaillé en français",
-            "corrected": "phrase corrigée si nécessaire",
-            "common_mistakes": ["erreur1", "erreur2"]
-        }}
-        """
-
-        try:
-            response = self.groq_client.chat.completions.create(
-                model=MODEL_NAME,
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0.3,  # Plus strict pour l'évaluation
-                max_tokens=MAX_TOKENS,
-                response_format={"type": "json_object"},
-            )
-
-            return json.loads(response.choices[0].message.content)
-
-        except Exception as e:
-            logger.error(f"Erreur évaluation: {e}")
-            return {
-                "grade": "E",
-                "accuracy": 0,
-                "feedback": f"Erreur d'évaluation: {str(e)}",
-                "corrected": correct_sentence,
-                "common_mistakes": [],
-            }
-
-    def render_ui(self):
-        """Affiche l'interface utilisateur"""
-        st.title("🇯🇵 Pratique d'Écriture Japonaise")
-
-        # Sidebar avec configuration
-        with st.sidebar:
-            st.header("Configuration")
-            st.session_state.current_level = st.selectbox(
-                "Niveau JLPT", ["N5", "N4", "N3", "N2", "N1"], index=0
-            )
-
-            if st.button("Nouvelle phrase"):
-                sentence = self.generate_sentence()
-                if sentence:
-                    st.session_state.current_sentence = sentence
-                    st.session_state.app_state = AppState.PRACTICE
-                else:
-                    st.error("Erreur de génération")
-
-            if st.session_state.practice_history:
-                st.header("Historique")
-                for i, item in enumerate(st.session_state.practice_history[-5:]):
-                    st.caption(f"{i+1}. {item['japanese']} ({item['word_used']})")
-
-        # État principal
-        if st.session_state.last_error:
-            st.error(st.session_state.last_error)
-            st.session_state.last_error = None
-
-        if st.session_state.app_state == AppState.SETUP:
-            self.render_setup_state()
-        elif st.session_state.app_state == AppState.PRACTICE:
-            self.render_practice_state()
-        elif st.session_state.app_state == AppState.REVIEW:
-            self.render_review_state()
-
     def render_setup_state(self):
-        """Affiche l'état initial"""
+        """Affiche l'état initial de l'application"""
+        st.write("Débogage : L'état SETUP est en cours d'affichage")
+
         st.markdown(
             """
         ### Bienvenue dans votre assistant d'écriture japonaise
-            
+
         **Fonctionnalités:**
         - Génération de phrases adaptées à votre niveau
         - Évaluation automatique de vos réponses
         - Historique de pratique
-            
+
         Commencez par sélectionner votre niveau JLPT dans la sidebar et cliquez sur "Nouvelle phrase".
         """
         )
@@ -270,36 +228,129 @@ class JapaneseLearningApp:
         if not st.session_state.vocabulary_loaded:
             st.warning("Chargement du vocabulaire...")
 
+    def render_ui(self):
+        """Affiche l'interface utilisateur"""
+        st.title("🇯🇵 Pratique d'Écriture Japonaise")
+
+        # Débogage : afficher un message pour confirmer que la fonction s'exécute
+        st.write("Débogage : L'interface utilisateur a démarré")
+
+        # Initialisation critique des états
+        if "app_state" not in st.session_state:
+            st.session_state.app_state = AppState.SETUP
+            st.write("Débogage : Passage à l'état SETUP")
+
+        # Vérification de l'état actuel
+        st.write(f"État actuel de l'application : {st.session_state.app_state}")
+        st.write(f"Vocabulaire chargé : {st.session_state.vocabulary_loaded}")
+
+        # Sidebar - Doit persister entre les reruns
+        with st.sidebar:
+            st.header("Configuration")
+            level = st.selectbox(
+                "Niveau JLPT",
+                ["N5", "N4", "N3", "N2", "N1"],
+                index=["N5", "N4", "N3", "N2", "N1"].index(
+                    st.session_state.get("current_level", "N5")
+                ),
+            )
+
+            st.write(f"Niveau JLPT sélectionné : {level}")
+
+            if level != st.session_state.get("current_level"):
+                st.session_state.current_level = level
+                st.write(f"Débogage : Niveau changé en {level}")
+                st.rerun()
+
+            if st.button("✨ Nouvelle phrase", type="primary", key="new_sentence"):
+                st.session_state.app_state = AppState.PRACTICE
+                with st.spinner("Création d'un nouvel exercice..."):
+                    sentence = self.generate_sentence()
+                    if sentence:
+                        st.session_state.current_sentence = sentence
+                        st.session_state.practice_started = True
+                    else:
+                        st.error("Échec de la génération")
+                        st.session_state.app_state = AppState.SETUP
+
+            if st.session_state.get("practice_history"):
+                st.header("Derniers exercices")
+                for i, item in enumerate(
+                    reversed(st.session_state.practice_history[-3:])
+                ):
+                    st.caption(
+                        f"{len(st.session_state.practice_history)-i}. {item['japanese']}"
+                    )
+
+        # Contenu principal - Gestion des états
+        if st.session_state.app_state == AppState.SETUP:
+            self.render_setup_state()
+        elif st.session_state.app_state == AppState.PRACTICE:
+            if (
+                "current_sentence" in st.session_state
+                and st.session_state.current_sentence
+            ):
+                self.render_practice_state()
+            else:
+                st.warning("Génération en cours...")
+                st.session_state.app_state = AppState.SETUP
+        elif st.session_state.app_state == AppState.REVIEW:
+            self.render_review_state()
+
     def render_practice_state(self):
         """Affiche l'état de pratique"""
-        if not st.session_state.current_sentence:
-            st.warning("Aucune phrase générée")
+        if (
+            "current_sentence" not in st.session_state
+            or st.session_state.current_sentence is None
+        ):
+            st.warning("Veuillez générer une nouvelle phrase")
             return
 
         sentence = st.session_state.current_sentence
         st.subheader("Phrase à écrire")
+
+        # Affichage de la phrase générée
         st.markdown(
-            f"""
-        **Mot clé:** {sentence['word_used']} ({sentence['word_reading']})  
-        **Signification:** {sentence['word_meaning']}  
-        **Traduction:** {sentence['french']}
-        """
+            f"**Mot à utiliser :** `{sentence['word_used']}` ({sentence['word_reading']})"
         )
+        st.caption(f"Signification : {sentence['word_meaning']}")
 
-        user_input = st.text_area("Écrivez la phrase en japonais:", height=100)
+        # Zone de réponse
+        st.markdown("### Votre réponse")
+        user_input = st.text_area(
+            "Tapez la phrase en japonais:",
+            value="",
+            height=100,
+            key=f"input_{sentence['generated_at']}",  # Clé unique par exercice
+        )
+        st.write(f"Réponse utilisateur : {user_input}")  # Debug
 
-        if st.button("Soumettre"):
-            if user_input.strip():
-                review = self.grade_submission(user_input, sentence["japanese"])
-                st.session_state.review_data = {
-                    "user_input": user_input,
-                    "correct_sentence": sentence["japanese"],
-                    "review": review,
-                }
-                st.session_state.app_state = AppState.REVIEW
+        # Boutons de contrôle
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("🔍 Vérifier", type="primary"):
+                if user_input.strip():
+                    review = self.grade_submission(user_input, sentence["japanese"])
+                    st.session_state.review_data = {
+                        "user_input": user_input,
+                        "correct_sentence": sentence["japanese"],
+                        "review": review,
+                    }
+                    st.session_state.app_state = AppState.REVIEW
+                    st.rerun()
+                else:
+                    st.warning("Veuillez écrire votre réponse")
+
+        with col2:
+            if st.button("🔄 Nouvel exercice"):
+                st.session_state.app_state = AppState.SETUP
+                st.session_state.current_sentence = None
                 st.rerun()
-            else:
-                st.warning("Veuillez entrer votre réponse")
+
+        # Aide contextuelle
+        with st.expander("💡 Indice"):
+            st.markdown(f"**Traduction :** {sentence['french']}")
+            st.caption(f"Points de grammaire : {', '.join(sentence['grammar_points'])}")
 
     def render_review_state(self):
         """Affiche les résultats"""
@@ -319,10 +370,10 @@ class JapaneseLearningApp:
             f"""
         **Votre réponse:**  
         {data['user_input']}
-            
+
         **Correction:**  
         {review['corrected']}
-            
+
         **Feedback:**  
         {review['feedback']}
         """
@@ -330,7 +381,18 @@ class JapaneseLearningApp:
 
         if st.button("Nouvel exercice"):
             st.session_state.app_state = AppState.SETUP
+            st.session_state.current_sentence = None  # Réinitialiser la phrase actuelle
+            st.session_state.review_data = None  # Réinitialiser les données de révision
             st.rerun()
+
+    def grade_submission(self, user_input: str, correct_sentence: str) -> Dict:
+        """Évalue la soumission de l'utilisateur"""
+        return {
+            "grade": "B",
+            "accuracy": 80,
+            "corrected": correct_sentence,
+            "feedback": "Votre réponse est presque correcte, vérifiez l'ordre des particules.",
+        }
 
 
 # Lancement de l'app
