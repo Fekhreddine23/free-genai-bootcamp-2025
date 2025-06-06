@@ -30,6 +30,8 @@ grading:
     Student's Japanese: {submission}
     Literal translation: {translation}
     
-    Provide your assessment in this format:
-    Grade: [S/A/B/C]
-    Feedback: [Your detailed feedback]
+  Provide your assessment in JSON format:
+{
+  "grade": "[S/A/B/C]",
+  "feedback": "[Your detailed feedback]"
+}
