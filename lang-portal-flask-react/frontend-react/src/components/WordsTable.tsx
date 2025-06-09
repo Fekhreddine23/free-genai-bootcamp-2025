@@ -10,6 +10,7 @@ interface WordsTableProps {
   sortKey: WordSortKey
   sortDirection: 'asc' | 'desc'
   onSort: (key: WordSortKey) => void
+  onReviewChange: (word_id: number, correct: boolean) => void // Ajouter cette ligne
 }
 
 export default function WordsTable({ words, sortKey, sortDirection, onSort }: WordsTableProps) {

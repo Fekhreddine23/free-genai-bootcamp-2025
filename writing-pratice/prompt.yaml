@@ -31,7 +31,7 @@ grading:
     Literal translation: {translation}
     
   Provide your assessment in JSON format:
-{
-  "grade": "[S/A/B/C]",
-  "feedback": "[Your detailed feedback]"
-}
+    {
+      "grade": "[S/A/B/C]",
+      "feedback": "[Your detailed feedback]"
+    }

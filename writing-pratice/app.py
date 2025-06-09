@@ -8,15 +8,26 @@ from typing import Dict
 from PIL import Image
 import numpy as np
 import io
-from manga_ocr import MangaOcr
-from streamlit_drawable_canvas import st_canvas
-from groq import Groq
 import os
+import requests
+from datetime import datetime
+import fitz  # PyMuPDF
+from Levenshtein import ratio
+
+try:
+    from manga_ocr import MangaOcr
+    from streamlit_drawable_canvas import st_canvas
+    from groq import Groq
+except ImportError as e:
+    logger.error(
+        f"Erreur d'importation: {str(e)}. Assurez-vous que toutes les dépendances sont installées."
+    )
+    st.error(f"Erreur: {str(e)}. Veuillez installer les dépendances nécessaires.")
+    raise
 
 # Configuration du logger
 logger = logging.getLogger("japanese_app")
 logger.setLevel(logging.DEBUG)
-
 if not logger.handlers:
     file_handler = logging.FileHandler("app.log")
     file_handler.setLevel(logging.DEBUG)
@@ -33,57 +44,39 @@ class AppState(Enum):
 
 class JapaneseLearningApp:
     def __init__(self):
-        """Initialisation de l'application"""
         if "app_initialized" not in st.session_state:
             logger.debug("Initialisation de l'application...")
-            self.load_prompt_yaml()  # Charger le YAML ici
+            self.load_prompt_yaml()
             self.initialize_session_state()
             self.load_vocabulary()
             self.mocr = MangaOcr()
-
-            # Extraire la clé API
             api_key = os.getenv("GROQ_API_KEY") or st.secrets.get("GROQ_API_KEY")
-
-            # Assurez-vous que la clé API est disponible
             if api_key:
-                logger.debug(f"Configuration Groq: {api_key[:5]}...")
+                self.groq_client = Groq(api_key=api_key)
+                logger.debug("Groq configuré.")
             else:
-                logger.warning(
-                    "Aucune clé API Groq trouvée. Vérifiez la configuration."
-                )
-
-            # Créer l'instance de Groq avec la clé API
-            self.groq_client = Groq(api_key=api_key)
-
+                logger.warning("Aucune clé API Groq trouvée.")
+                self.groq_client = None
             self.pre_generated_sentences = self.pre_generate_sentences()
             st.session_state.app_initialized = True
             logger.debug("Application initialisée")
 
     def load_prompt_yaml(self):
-        """Charge le fichier YAML pour la génération de phrases"""
         try:
-            # Charger le fichier YAML depuis son chemin absolu
-            yaml_file_path = "/mnt/c/Users/far23/Bureau/free-genai-bootcamp-2025-main/writing-pratice/prompt.yaml"
-            with open(yaml_file_path, "r") as file:
-                self.prompt_config = yaml.safe_load(file)
+            yaml_file_path = os.path.join(os.path.dirname(__file__), "prompt.yaml")
+            with open(yaml_file_path, "r", encoding="utf-8") as file:
+                self.prompt_config = yaml.safe_load(file) or {}
                 logger.info("Fichier prompt.yaml chargé avec succès.")
-                # Afficher le contenu du YAML pour débogage
-                logger.debug(f"Contenu du YAML: {self.prompt_config}")
-
-                # Vérification de la présence de la clé 'sentence_generation'
-                if "sentence_generation" not in self.prompt_config:
-                    logger.error(
-                        "Clé 'sentence_generation' manquante dans le fichier YAML."
-                    )
-                    raise KeyError(
-                        "Clé 'sentence_generation' manquante dans le fichier YAML."
-                    )
+        except FileNotFoundError:
+            logger.error("Fichier prompt.yaml introuvable.")
+            st.error("Erreur : Fichier prompt.yaml introuvable.")
+            self.prompt_config = {}
         except Exception as e:
-            logger.error(f"Erreur lors du chargement du fichier prompt.yaml: {str(e)}")
+            logger.error(f"Erreur YAML: {str(e)}")
+            st.error(f"Erreur lors du chargement du YAML: {str(e)}")
             self.prompt_config = {}
 
     def initialize_session_state(self):
-        """Initialise l'état de la session"""
         defaults = {
             "app_state": AppState.SETUP,
             "current_sentence": None,
@@ -96,13 +89,11 @@ class JapaneseLearningApp:
             "exercise_started": False,
             "alternative_sentences": {},
         }
-
         for key, value in defaults.items():
             if key not in st.session_state:
                 st.session_state[key] = value
 
     def load_vocabulary(self):
-        """Charge le vocabulaire avec plus d'exemples"""
         if not st.session_state.vocabulary_loaded:
             st.session_state.vocabulary = {
                 "words": [
@@ -156,28 +147,25 @@ class JapaneseLearningApp:
             )
 
     def validate_semantics(self, response: dict, word: dict) -> bool:
-        """Validation basique de la sémantique"""
         if not response.get("japanese") or not response.get("hint"):
             return False
-
         hint_lower = response["hint"].lower()
         word_french_lower = word["french"].lower()
-
-        # Vérification simple que le mot français apparaît dans l'indice
         return word_french_lower in hint_lower
 
     def generate_sentence_with_groq(self, word: dict, attempts=3) -> dict:
-        """Génère une phrase avec Groq avec gestion des réessais"""
+        if not self.groq_client:
+            logger.warning("Groq non configuré. Utilisation de phrases de secours.")
+            return self.generate_fallback_sentence(word)
+
         if attempts <= 0:
             logger.warning(f"Maximum d'essais atteint pour {word['kanji']}")
             return self.generate_fallback_sentence(word)
 
         try:
-            # Utilisation du prompt tel qu'il est dans votre YAML
             prompt = self.prompt_config["sentence_generation"]["user"].format(
                 word=word["kanji"]
             )
-
             chat_completion = self.groq_client.chat.completions.create(
                 messages=[
                     {
@@ -190,15 +178,11 @@ class JapaneseLearningApp:
                 temperature=0.7,
                 max_tokens=300,
             )
-
-            # La réponse est juste la phrase en japonais
             japanese_sentence = chat_completion.choices[0].message.content.strip()
 
-            # Génération de la traduction
             translation_prompt = self.prompt_config["translation"]["user"].format(
                 text=japanese_sentence
             )
-
             translation_completion = self.groq_client.chat.completions.create(
                 messages=[
                     {
@@ -208,36 +192,30 @@ class JapaneseLearningApp:
                     {"role": "user", "content": translation_prompt},
                 ],
                 model="llama3-70b-8192",
-                temperature=0.2,  # Plus bas pour des traductions précises
+                temperature=0.2,
                 max_tokens=150,
             )
-
             hint = translation_completion.choices[0].message.content.strip()
 
-            # Création de la structure de réponse attendue
             return {
                 "japanese": japanese_sentence,
                 "hint": hint,
                 "word_used": word["kanji"],
                 "word_reading": word["reading"],
                 "word_meaning": word["french"],
-                "grammar_points": [
-                    "auto-généré"
-                ],  # Vous pourriez ajouter une analyse ici
+                "grammar_points": ["auto-généré"],
                 "difficulty": word["level"],
                 "context": random.choice(word["contexts"]),
             }
-
         except Exception as e:
             logger.error(f"Erreur Groq: {str(e)}")
             return self.generate_fallback_sentence(word)
 
     def pre_generate_sentences(self):
-        """Pré-génère 3 phrases alternatives pour chaque mot"""
         sentences = {}
         for word in st.session_state.vocabulary["words"]:
             alternatives = []
-            for _ in range(3):  # 3 phrases alternatives
+            for _ in range(3):
                 sentence = self.generate_sentence_with_groq(
                     word
                 ) or self.generate_fallback_sentence(word)
@@ -246,7 +224,6 @@ class JapaneseLearningApp:
         return sentences
 
     def generate_fallback_sentence(self, word: dict) -> dict:
-        """Génère des phrases de secours variées"""
         templates = {
             "lire": [
                 ("{}を読みます", "Je lis [quelque chose]"),
@@ -263,23 +240,11 @@ class JapaneseLearningApp:
                 ("{}が欲しい", "Je veux [quelque chose]"),
                 ("{}をください", "Donnez-moi [quelque chose]"),
             ],
-            "voyage": [
-                ("{}の計画", "Plan de [activité]"),
-                ("{}が楽しい", "[Activité] est amusante"),
-                ("{}に行く", "Aller en [quelque part]"),
-            ],
-            "étudier": [
-                ("{}を学ぶ", "J'apprends [quelque chose]"),
-                ("{}の先生", "Professeur de [quelque chose]"),
-                ("{}が難しい", "[Quelque chose] est difficile"),
-            ],
         }
-
         used_context = word["contexts"][0]
         template, hint = random.choice(
             templates.get(used_context, [("{}を使う", "J'utilise [quelque chose]")])
         )
-
         return {
             "japanese": template.format(word["kanji"]),
             "hint": hint,
@@ -292,7 +257,6 @@ class JapaneseLearningApp:
         }
 
     def generate_sentence(self) -> dict:
-        """Génère une phrase aléatoire ou utilise le cache"""
         level_words = [
             w
             for w in st.session_state.vocabulary["words"]
@@ -313,7 +277,6 @@ class JapaneseLearningApp:
         ) or self.generate_fallback_sentence(word)
 
     def render_setup_state(self):
-        """Affiche l'écran d'accueil"""
         st.markdown(
             """
         ### Assistant d'Écriture Japonaise
@@ -329,22 +292,15 @@ class JapaneseLearningApp:
             "Choisissez votre niveau JLPT", ["N5", "N4", "N3", "N2", "N1"], index=0
         )
 
-        test_word = st.session_state.vocabulary["words"][0]
-        test_result = self.generate_sentence_with_groq(test_word)
-        st.json(test_result)
-
         if st.button("Commencer la Pratique"):
+            self.pre_generated_sentences = self.pre_generate_sentences()
             st.session_state.app_state = AppState.PRACTICE
             st.session_state.current_sentence = self.generate_sentence()
             st.session_state.exercise_started = True
             st.rerun()
 
     def render_practice_state(self):
-        """Affiche l'interface de pratique"""
-        if (
-            "current_sentence" not in st.session_state
-            or st.session_state.current_sentence is None
-        ):
+        if not st.session_state.current_sentence:
             st.session_state.current_sentence = self.generate_sentence()
 
         sentence = st.session_state.current_sentence
@@ -363,7 +319,6 @@ class JapaneseLearningApp:
         """
         )
 
-        # Zone de téléchargement de fichier
         st.subheader("Soumettre votre réponse en téléchargeant un fichier")
         uploaded_file = st.file_uploader(
             "Téléchargez votre fichier de réponse", type=["jpg", "png", "pdf", "txt"]
@@ -372,9 +327,7 @@ class JapaneseLearningApp:
         if uploaded_file is not None:
             st.write(f"Fichier téléchargé: {uploaded_file.name}")
 
-            # Traitement du fichier selon son type
             if uploaded_file.type in ["image/jpeg", "image/png"]:
-                # Si le fichier est une image, utilisez Tesseract pour l'OCR
                 image = Image.open(uploaded_file)
                 st.image(image, caption="Image téléchargée", use_column_width=True)
 
@@ -386,16 +339,13 @@ class JapaneseLearningApp:
                     st.error(f"Erreur lors de la reconnaissance: {str(e)}")
 
             elif uploaded_file.type == "application/pdf":
-                # Si le fichier est un PDF, utilisez PyMuPDF ou PyPDF2 pour extraire le texte
                 text = self.extract_text_from_pdf(uploaded_file)
                 st.text_area("Texte extrait du PDF", value=text, height=100)
 
             elif uploaded_file.type == "text/plain":
-                # Si le fichier est un fichier texte, lisez directement le contenu
                 text = uploaded_file.getvalue().decode("utf-8")
                 st.text_area("Texte téléchargé", value=text, height=100)
 
-        # Zone de dessin pour permettre à l'utilisateur de dessiner sa réponse
         canvas_result = st_canvas(
             stroke_width=3,
             stroke_color="#000000",
@@ -418,7 +368,6 @@ class JapaneseLearningApp:
             except Exception as e:
                 st.error(f"Erreur: {str(e)}")
 
-        # Entrée texte alternative si l'utilisateur préfère écrire directement
         user_input = st.text_area(
             "Ou écrivez directement:",
             value=getattr(st.session_state, "recognized_text", ""),
@@ -426,7 +375,6 @@ class JapaneseLearningApp:
             key="user_input",
         )
 
-        # Boutons pour vérifier la réponse
         col1, col2, col3 = st.columns(3)
         with col1:
             if st.button("✅ Vérifier", type="primary"):
@@ -438,33 +386,132 @@ class JapaneseLearningApp:
             if st.button("🔀 Autre Exemple"):
                 self.show_alternative()
 
-    def check_answer(self, user_input: str):
-        """Évalue la réponse de l'utilisateur"""
-        if not user_input.strip():
+    def check_answer(self, user_input: str = None):
+        """Évalue la réponse de l'utilisateur et enregistre le résultat"""
+        if user_input is None:
+            user_input = st.session_state.get("recognized_text", "").strip()
+
+        if not user_input:
             st.warning("Veuillez écrire ou dessiner votre réponse")
             return
 
+        # Évaluation locale
         review = self.grade_submission(
             user_input, st.session_state.current_sentence["japanese"]
         )
-        st.session_state.review_data = {
-            "user_input": user_input,
-            "correct_sentence": st.session_state.current_sentence["japanese"],
-            "review": review,
-            "drawing": st.session_state.drawing_data,
+        current_word_kanji = st.session_state.current_sentence["word_used"]
+        current_word = next(
+            (
+                w
+                for w in st.session_state.vocabulary["words"]
+                if w["kanji"] == current_word_kanji
+            ),
+            None,
+        )
+
+        if not current_word:
+            st.error("Mot courant non trouvé dans le vocabulaire")
+            return
+
+        # Préparation des données pour le backend
+        submission_data = {
+            "session": {"group_id": 1, "study_activity_id": 1},
+            "answers": [
+                {
+                    "word_id": self.get_word_id(current_word_kanji),
+                    "correct": review["grade"] in ["A+", "A"],
+                }
+            ],
         }
-        st.session_state.app_state = AppState.REVIEW
-        st.rerun()
+
+        logger.debug(f"Données soumises: {json.dumps(submission_data, indent=2)}")
+
+        try:
+            # Création de la session
+            session_response = requests.post(
+                "http://localhost:5000/study_sessions",
+                json=submission_data["session"],
+                headers={"Content-Type": "application/json"},
+                timeout=5,
+            )
+            session_response.raise_for_status()
+            session_data = session_response.json()
+            logger.debug(f"Réponse de création de session: {session_data}")
+            session_id = session_data.get("session_id")
+
+            if not session_id:
+                st.error("Erreur: session_id non retourné par le serveur")
+                return
+
+            # Enregistrement des réponses
+            review_response = requests.post(
+                f"http://localhost:5000/study_sessions/{session_id}/review",
+                json={
+                    "answers": submission_data["answers"]
+                },  # Envelopper dans {"answers": ...}
+                headers={"Content-Type": "application/json"},
+                timeout=5,
+            )
+            review_response.raise_for_status()
+            logger.debug(
+                f"Réponse de l'enregistrement des réponses: {review_response.json()}"
+            )
+
+            # Récupération des résultats
+            results_response = requests.get(
+                f"http://localhost:5000/api/study-sessions/{session_id}", timeout=5
+            )
+            results_response.raise_for_status()
+            results = results_response.json()
+
+            st.session_state.review_data = {
+                "user_input": user_input,
+                "correct_sentence": st.session_state.current_sentence["japanese"],
+                "review": review,
+                "drawing": st.session_state.drawing_data,
+                "backend_data": results.get("session", {}),
+            }
+            st.session_state.app_state = AppState.REVIEW
+            st.rerun()
+
+        except requests.exceptions.HTTPError as e:
+            logger.error(f"Erreur HTTP: {str(e)} - Détails: {e.response.text}")
+            st.error(f"Erreur lors de la soumission: {e.response.text}")
+            # Fallback local
+            st.session_state.review_data = {
+                "user_input": user_input,
+                "correct_sentence": st.session_state.current_sentence["japanese"],
+                "review": review,
+                "drawing": st.session_state.drawing_data,
+                "backend_data": None,
+            }
+            st.session_state.app_state = AppState.REVIEW
+            st.rerun()
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Erreur de connexion au backend: {str(e)}")
+            st.error(f"Erreur de connexion au serveur: {str(e)}")
+            st.session_state.review_data = {
+                "user_input": user_input,
+                "correct_sentence": st.session_state.current_sentence["japanese"],
+                "review": review,
+                "drawing": st.session_state.drawing_data,
+                "backend_data": None,
+            }
+            st.session_state.app_state = AppState.REVIEW
+            st.rerun()
+
+    def get_word_id(self, kanji: str) -> int:
+        for idx, word in enumerate(st.session_state.vocabulary["words"]):
+            if word["kanji"] == kanji:
+                return idx + 1
+        return 1
 
     def reset_exercise(self):
-        """Réinitialise l'exercice avec un nouveau mot"""
         st.session_state.current_sentence = self.generate_sentence()
         st.session_state.drawing_data = None
         st.session_state.recognized_text = ""
-        st.rerun()
 
     def show_alternative(self):
-        """Affiche une phrase alternative pour le même mot"""
         current_word = st.session_state.current_sentence["word_used"]
         if current_word in self.pre_generated_sentences:
             alternatives = [
@@ -477,7 +524,6 @@ class JapaneseLearningApp:
                 st.rerun()
 
     def render_review_state(self):
-        """Affiche les résultats"""
         if not st.session_state.review_data:
             st.error("Aucune donnée disponible")
             st.session_state.app_state = AppState.SETUP
@@ -485,6 +531,8 @@ class JapaneseLearningApp:
             return
 
         data = st.session_state.review_data
+        backend_data = data.get("backend_data", {})
+
         st.subheader("Résultats")
 
         if data.get("drawing"):
@@ -492,11 +540,20 @@ class JapaneseLearningApp:
             data["drawing"].save(buf, format="PNG")
             st.image(buf.getvalue(), caption="Votre écriture", width=200)
 
-        col1, col2 = st.columns(2)
-        with col1:
-            st.metric("Note", data["review"]["grade"])
-        with col2:
-            st.metric("Précision", "80%")
+        if backend_data:
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.metric("Note", backend_data.get("grade", "N/A"))
+            with col2:
+                st.metric("Précision", f"{backend_data.get('accuracy', 0)}%")
+            with col3:
+                st.metric("Feedback", backend_data.get("feedback", ""))
+        else:
+            col1, col2 = st.columns(2)
+            with col1:
+                st.metric("Note", data["review"]["grade"])
+            with col2:
+                st.metric("Précision", "80%")
 
         st.markdown(
             f"""
@@ -517,15 +574,11 @@ class JapaneseLearningApp:
             st.rerun()
 
     def grade_submission(self, user_input: str, correct_sentence: str) -> Dict:
-        """Évalue la réponse avec plus de nuances"""
         user_clean = user_input.strip()
         correct_clean = correct_sentence.strip()
 
         if user_clean == correct_clean:
-            return {
-                "grade": "A+",
-                "feedback": "Parfait ! Votre phrase est exacte.",
-            }
+            return {"grade": "A+", "feedback": "Parfait ! Votre phrase est exacte."}
         elif self.is_almost_correct(user_clean, correct_clean):
             return {
                 "grade": "A",
@@ -538,16 +591,24 @@ class JapaneseLearningApp:
             }
 
     def is_almost_correct(self, user: str, correct: str) -> bool:
-        """Détecte les réponses presque correctes"""
-        return (
-            user.replace(" ", "") == correct.replace(" ", "")
-            or user.replace("。", ".") == correct.replace("。", ".")
-            or user in correct
-            or correct in user
-        )
+        user_clean = user.strip().replace(" ", "").replace("。", ".")
+        correct_clean = correct.strip().replace(" ", "").replace("。", ".")
+        return ratio(user_clean, correct_clean) > 0.9
+
+    def extract_text_from_pdf(self, uploaded_file):
+        try:
+            pdf_document = fitz.open(stream=uploaded_file.read(), filetype="pdf")
+            text = ""
+            for page in pdf_document:
+                text += page.get_text()
+            pdf_document.close()
+            return text.strip()
+        except Exception as e:
+            logger.error(f"Erreur PDF: {str(e)}")
+            st.error(f"Erreur lors de l'extraction du texte: {str(e)}")
+            return ""
 
     def render_ui(self):
-        """Gère l'affichage principal"""
         if st.session_state.app_state == AppState.SETUP:
             self.render_setup_state()
         elif st.session_state.app_state == AppState.PRACTICE:
@@ -560,7 +621,6 @@ class JapaneseLearningApp:
             self.render_setup_state()
 
 
-# Point d'entrée de l'application
 def main():
     st.set_page_config(page_title="Pratique Japonaise", page_icon="🇯🇵")
     if "app" not in st.session_state:

@@ -4,6 +4,8 @@ import { useNavigation } from '@/context/NavigationContext'
 import StudySessionsTable from '@/components/StudySessionsTable'
 import Pagination from '@/components/Pagination'
 
+type StudySessionSortKey = 'id' | 'activity_name' | 'group_name' | 'start_time' | 'end_time' | 'review_items_count'
+
 type Session = {
   id: number
   group_name: string
@@ -41,6 +43,19 @@ export default function StudyActivityShow() {
   const [currentPage, setCurrentPage] = useState(1)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [sortKey, setSortKey] = useState<StudySessionSortKey>('start_time')
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
+
+  const handleSort = (key: StudySessionSortKey) => {
+    if (sortKey === key) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortKey(key)
+      setSortDirection('desc')
+    }
+    // Reset to first page when sorting changes
+    setCurrentPage(1)
+  }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -57,9 +72,9 @@ export default function StudyActivityShow() {
         setActivity(data)
         setCurrentStudyActivity(data)
         
-        // Fetch sessions for the current page
+        // Fetch sessions with sorting and pagination
         const sessionsResponse = await fetch(
-          `http://localhost:5000/api/study-activities/${id}/sessions?page=${currentPage}&per_page=${ITEMS_PER_PAGE}`
+          `http://localhost:5000/api/study-activities/${id}/sessions?page=${currentPage}&per_page=${ITEMS_PER_PAGE}&sort=${sortKey}&order=${sortDirection}`
         )
         if (!sessionsResponse.ok) {
           throw new Error('Failed to fetch sessions')
@@ -89,7 +104,7 @@ export default function StudyActivityShow() {
     }
 
     fetchData()
-  }, [id, currentPage, setCurrentStudyActivity])
+  }, [id, currentPage, sortKey, sortDirection, setCurrentStudyActivity])
 
   // Clean up when unmounting
   useEffect(() => {
@@ -144,7 +159,12 @@ export default function StudyActivityShow() {
       {sessionData && sessionData.items.length > 0 && (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
           <h2 className="text-xl font-semibold mb-4">Study Sessions</h2>
-          <StudySessionsTable sessions={sessionData.items} />
+          <StudySessionsTable 
+            sessions={sessionData.items} 
+            sortKey={sortKey}
+            sortDirection={sortDirection}
+            onSort={handleSort}
+          />
           {sessionData.total_pages > 1 && (
             <div className="mt-4">
               <Pagination

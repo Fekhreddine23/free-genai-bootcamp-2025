@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { useNavigation } from '@/context/NavigationContext'
 import WordsTable from '@/components/WordsTable'
 import Pagination from '@/components/Pagination'
 import type { Word, WordSortKey } from '@/services/api'
@@ -14,6 +13,11 @@ interface StudySession {
   start_time: string
   end_time: string
   review_items_count: number
+  total_correct: number
+  total_wrong: number
+  accuracy: number
+  grade: string
+  feedback: string
 }
 
 interface SessionResponse {
@@ -36,10 +40,13 @@ export default function StudySessionShow() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  // Nouvelle variable d'état pour les révisions
+  const [reviewAnswers, setReviewAnswers] = useState<{ word_id: number, correct: boolean }[]>([])
+
   useEffect(() => {
     const fetchData = async () => {
       if (!id) return
-      
+
       setLoading(true)
       setError(null)
       try {
@@ -70,6 +77,45 @@ export default function StudySessionShow() {
       setSortKey(key)
       setSortDirection('asc')
     }
+  }
+
+  // Fonction pour soumettre les révisions
+  const submitReviews = async () => {
+    if (reviewAnswers.length === 0) {
+      return
+    }
+
+    try {
+      const response = await fetch(`http://127.0.0.1:5000/study_sessions/${id}/review`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          answers: reviewAnswers,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to submit reviews')
+      }
+
+      const data = await response.json()
+      console.log("Review submitted:", data)
+      // Vous pouvez mettre à jour l'état ou rediriger l'utilisateur si nécessaire
+      alert("Révisions soumises avec succès !")
+    } catch (err) {
+      console.error("Error submitting review:", err)
+    }
+  }
+
+  // Fonction pour gérer le changement de réponse d'un mot
+  const handleReviewChange = (word_id: number, correct: boolean) => {
+    setReviewAnswers((prev) => {
+      const newAnswers = prev.filter((answer) => answer.word_id !== word_id)
+      newAnswers.push({ word_id, correct })
+      return newAnswers
+    })
   }
 
   if (loading) {
@@ -124,6 +170,7 @@ export default function StudySessionShow() {
           sortKey={sortKey}
           sortDirection={sortDirection}
           onSort={handleSort}
+          onReviewChange={handleReviewChange}  // Pass the function to handle review changes
         />
         {totalPages > 1 && (
           <div className="mt-4">
@@ -134,6 +181,16 @@ export default function StudySessionShow() {
             />
           </div>
         )}
+      </div>
+
+      {/* Ajouter un bouton pour soumettre les révisions */}
+      <div className="flex justify-end mt-4">
+        <button
+          onClick={submitReviews}
+          className="px-6 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700"
+        >
+          Submit Reviews
+        </button>
       </div>
     </div>
   )

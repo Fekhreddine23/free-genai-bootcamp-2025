@@ -253,3 +253,6 @@ export const fetchStudyStats = async (): Promise<StudyStats> => {
   }
   return response.json();
 };
+
+
+export type WordSortKey = 'kanji' | 'romaji' | 'french' | 'correct_count' | 'wrong_count';

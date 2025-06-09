@@ -28,7 +28,7 @@ export default function StudySessionsTable({
                 key={key}
                 scope="col"
                 className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
-                onClick={() => onSort(key)}
+                onClick={() => onSort(key as StudySessionSortKey  )}
               >
                 <div className="flex items-center">
                   {key === 'review_items_count' ? '# Review Items' : key.replace(/_([a-z])/g, ' $1').trim()}

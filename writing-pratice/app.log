@@ -1,0 +1,47 @@
+ 
+  
+
+2025-06-09 14:15:33,801 - DEBUG - Initialisation de l'application...
+2025-06-09 14:15:33,807 - INFO - Fichier prompt.yaml chargé avec succès.
+2025-06-09 14:15:33,808 - INFO - Vocabulaire chargé (6 mots)
+2025-06-09 14:15:40,606 - DEBUG - Groq configuré.
+2025-06-09 14:16:03,360 - DEBUG - Application initialisée
+2025-06-09 14:17:09,428 - ERROR - Erreur Groq: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama3-70b-8192` in organization `org_01jv26gt2nf6d8kam6vrpbd40j` service tier `on_demand` on requests per minute (RPM): Limit 30, Used 30, Requested 1. Please try again in 1.87s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'requests', 'code': 'rate_limit_exceeded'}}
+2025-06-09 14:17:44,660 - ERROR - Erreur Groq: Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama3-70b-8192` in organization `org_01jv26gt2nf6d8kam6vrpbd40j` service tier `on_demand` on requests per minute (RPM): Limit 30, Used 30, Requested 1. Please try again in 1.945s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'requests', 'code': 'rate_limit_exceeded'}}
+2025-06-09 14:18:47,683 - DEBUG - Initialisation de l'application...
+2025-06-09 14:18:47,689 - INFO - Fichier prompt.yaml chargé avec succès.
+2025-06-09 14:18:47,691 - INFO - Vocabulaire chargé (6 mots)
+2025-06-09 14:20:21,198 - DEBUG - Application initialisée
+2025-06-09 14:27:34,299 - DEBUG - Initialisation de l'application...
+2025-06-09 14:27:34,306 - INFO - Fichier prompt.yaml chargé avec succès.
+2025-06-09 14:27:34,308 - INFO - Vocabulaire chargé (6 mots)
+2025-06-09 14:27:38,911 - DEBUG - Groq configuré.
+2025-06-09 14:28:07,436 - DEBUG - Application initialisée
+2025-06-09 14:30:28,730 - DEBUG - Données soumises: {
+  "session": {
+    "group_id": 1,
+    "study_activity_id": 1
+  },
+  "answers": [
+    {
+      "word_id": 1,
+      "correct": false
+    }
+  ]
+}
+2025-06-09 14:30:28,802 - DEBUG - Réponse de création de session: {'session_id': 14}
+2025-06-09 14:30:28,848 - DEBUG - Réponse de l'enregistrement des réponses: {'message': 'Review logged successfully'}
+2025-06-09 15:00:23,364 - DEBUG - Données soumises: {
+  "session": {
+    "group_id": 1,
+    "study_activity_id": 1
+  },
+  "answers": [
+    {
+      "word_id": 1,
+      "correct": false
+    }
+  ]
+}
+2025-06-09 15:00:23,422 - DEBUG - Réponse de création de session: {'session_id': 15}
+2025-06-09 15:00:23,466 - DEBUG - Réponse de l'enregistrement des réponses: {'message': 'Review logged successfully'}
