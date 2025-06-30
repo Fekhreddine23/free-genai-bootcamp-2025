@@ -1,0 +1,46 @@
+version: "3.9"
+
+services:
+  chatqna-xeon-backend-server:
+    image: ${REGISTRY:-opea}/chatqna:${TAG:-latest}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: megaservice
+    depends_on:
+      - redis-vector-db
+      - tei-embedding-service
+      - retriever
+      - tei-reranking-service
+      - vllm-service
+    ports:
+      - "8000:8000"
+    ipc: host
+    restart: always
+
+  redis-vector-db:
+    image: redis:latest
+    container_name: redis-vector-db
+    ports:
+      - "6379:6379"
+
+  # Ajout des contextes de build pour les services personnalisés
+  tei-embedding-service:
+    build:
+      context: ../tei-embedding-service  # Chemin relatif au dossier du service
+    container_name: tei-embedding-service
+
+  retriever:
+    build:
+      context: ../retriever
+    container_name: retriever
+
+  tei-reranking-service:
+    build:
+      context: ../tei-reranking-service
+    container_name: tei-reranking-service
+
+  vllm-service:
+    build:
+      context: ../vllm-service
+    container_name: vllm-service

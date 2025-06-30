@@ -1,2 +1,4 @@
 opea-comps
 fastapi
+opentelemetry-instrumentation
+opentelemetry-instrumentation-fastapi

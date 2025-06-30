@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+if [ ! -d "output" ]; then
+    mkdir -p output
+fi
+
+timestamp=$(date +%s)
+response_file="output/${timestamp}-response.json"
+
+curl -X POST "http://localhost:8080/pepsi-amour" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "prompt": "Hello, this is a test message",
+       "stream": false,
+       "model": "llama3.2.1b",
+       "max_tokens": 100,
+       "temperature": 0.7
+     }' | jq '.' > "$response_file"
+
+if [ $? -eq 0 ]; then
+  echo "Réponse sauvegardée dans : $response_file"
+else
+  echo "Erreur lors de la requête"
+  exit 1
+fi

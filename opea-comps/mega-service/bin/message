@@ -1,0 +1,14 @@
+#! /usr/bin/bash
+curl -X POST http://localhost:8001/chat \
+-H "Content-Type: application/json" \
+-d '{
+  "messages": [
+    {"role": "user", "content": "Hello, this is a test message"},
+    {"role": "assistant", "content": "No response content available"},
+    {"role": "user", "content": "What is the weather like today?"}
+  ],
+  "stream": false,
+  "model": "gemma:2b",
+  "max_tokens": 100,
+  "temperature": 0.7
+}' | jq '.' > output/$(date +%s)-response.json
