@@ -1,22 +1,39 @@
-# Copyright (C) 2024 Intel Corporation
-# SPDX-License-Identifier: Apache-2.0
-
-# Copyright (C) 2024 Intel Corporation
-# SPDX-License-Identifier: Apache-2.0
+version: '3.9'
 
 services:
   ollama-server:
     image: ollama/ollama
     container_name: ollama-server
     ports:
-      - ${LLM_ENDPOINT_PORT:-8008}:11434
+      - "${LLM_ENDPOINT_PORT:-8008}:11434"
     environment:
       no_proxy: ${no_proxy}
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
       LLM_MODEL_ID: ${LLM_MODEL_ID}
       host_ip: ${host_ip}
+    networks:
+      - megaservice-network
+
+  speecht5-service:
+    image: opea/speecht5:latest
+    container_name: speecht5-service
+    ipc: host
+    ports:
+      - "7055:7055"
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7055/health"]
+      interval: 10s
+      timeout: 6s
+      retries: 18
+    networks:
+      - megaservice-network
 
 networks:
-  default:
+  megaservice-network:
     driver: bridge

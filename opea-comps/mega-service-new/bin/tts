@@ -1,0 +1,6 @@
+#!/bin/bash
+ 
+curl http://localhost:7055/v1/audio/speech \
+ -XPOST -d '{"input": "Who are you?"}' \
+ -H 'Content-Type: application/json' \
+ --output speech.mp3
